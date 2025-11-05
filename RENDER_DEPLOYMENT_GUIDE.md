@@ -17,16 +17,17 @@ git push -u origin main
 ```
 
 ### 2️⃣ 檔案結構確認
-確保以下檔案存在於 `backend/` 目錄：
+確保以下檔案存在於正確位置：
 ```
-backend/
-├── app.py           ✅ 主應用程式
-├── db.py            ✅ 資料庫模型
-├── logic.py         ✅ 商業邏輯
-├── models.py        ✅ Pydantic 模型
-├── start.py         ✅ Render 啟動腳本
-├── requirements.txt ✅ Python 依賴
-└── render.yaml      ✅ Render 配置
+inventory_system/          # 專案根目錄
+├── requirements.txt       ✅ Python 依賴（根目錄）
+├── start.py              ✅ Render 啟動腳本（根目錄）
+├── render.yaml           ✅ Render 配置（根目錄）
+└── backend/              # 後端目錄  
+    ├── app.py            ✅ 主應用程式
+    ├── db.py             ✅ 資料庫模型
+    ├── logic.py          ✅ 商業邏輯
+    └── models.py         ✅ Pydantic 模型
 ```
 
 ---
@@ -57,14 +58,14 @@ backend/
    - 新增環境變數：
      ```
      PYTHON_VERSION = 3.11.0
-     PORT = 7000
+     PORT = 8000
      ```
 
 5. **其他設定：**
    ```
    Instance Type: Free (初期測試)
    Auto-Deploy: Yes (自動部署)
-   Root Directory: backend
+   Root Directory: (保持空白，使用專案根目錄)
    ```
 
 ### 步驟 3：部署啟動
