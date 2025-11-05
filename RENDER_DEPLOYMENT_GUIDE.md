@@ -11,7 +11,7 @@ git add .
 git commit -m "Initial commit"
 
 # 2. 推送到 GitHub
-git remote add origin https://github.com/YOUR_USERNAME/inventory_system_bk.git
+git remote add origin https://github.com/YOUR_USERNAME/inventory_system.git
 git branch -M main
 git push -u origin main
 ```
@@ -41,7 +41,7 @@ backend/
 ### 步驟 2：創建 Web Service
 1. **點擊「New +」** → **「Web Service」**
 2. **連接 GitHub 儲存庫：**
-   - 選擇 `inventory_system_bk` 儲存庫
+   - 選擇 `inventory_system` 儲存庫
    - 點擊「Connect」
 
 3. **配置服務設定：**
