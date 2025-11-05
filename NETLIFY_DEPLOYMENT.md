@@ -25,20 +25,24 @@
    - Netlify 自動處理部署
    - 獲得免費 HTTPS 網址（如：`https://amazing-inventory-123.netlify.app`）
 
-### 方法 2：GitHub 整合部署
+### 方法 2：GitHub 整合部署（推薦）
 
 1. **連接儲存庫**：
    - 在 Netlify 選擇「New site from Git」
    - 連接您的 GitHub 儲存庫：`inventory_system`
 
-2. **配置構建設定**：
+2. **自動配置**：
+   - Netlify 會自動讀取 `netlify.toml` 配置檔案
+   - 自動設定構建和部署參數
+
+3. **手動配置**（如果需要）：
    ```
    Base directory: frontend/inventory_app
    Build command: flutter build web --release  
    Publish directory: build/web
    ```
 
-3. **自動部署**：
+4. **自動部署**：
    - 每次推送程式碼到 GitHub
    - Netlify 自動重新構建和部署
 
