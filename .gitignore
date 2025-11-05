@@ -10,7 +10,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/  # 註解掉這行，因為會影響 Flutter 的 lib 目錄
 lib64/
 parts/
 sdist/
