@@ -1,11 +1,22 @@
 # db.py
-# import os
+import os
 from sqlalchemy import create_engine, Column, Integer, Float, String, Date, Boolean, UniqueConstraint
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 
-DB_URL = "sqlite:///./app.db"
-engine = create_engine(DB_URL, connect_args={"check_same_thread": False})
+# DB_URL = "sqlite:///./app.db"
+# engine = create_engine(DB_URL, connect_args={"check_same_thread": False})
+DATABASE_URL = os.getenv("DATABASE_URL")  # Render Postgres 會提供
+if not DATABASE_URL:
+    # fallback：本地開發
+    DATABASE_URL = "sqlite:///./app.db"
+
+# SQLAlchemy engine
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 

@@ -24,6 +24,10 @@ app.add_middleware(
 
 init_db(PRODUCTS)
 
+@app.get("/healthz")
+def health():
+    return {"ok": True}
+
 @app.get("/inventory")
 def get_inventory() -> Dict[str, Dict[str, float]]:
     with SessionLocal() as s:
