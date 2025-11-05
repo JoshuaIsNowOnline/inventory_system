@@ -7,16 +7,27 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # DB_URL = "sqlite:///./app.db"
 # engine = create_engine(DB_URL, connect_args={"check_same_thread": False})
 DATABASE_URL = os.getenv("DATABASE_URL")  # Render Postgres 會提供
-if not DATABASE_URL:
-    # fallback：本地開發
-    DATABASE_URL = "sqlite:///./app.db"
+# if not DATABASE_URL:
+#     # fallback：本地開發
+#     DATABASE_URL = "sqlite:///./app.db"
 
-# SQLAlchemy engine
-if DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-else:
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-    
+# # SQLAlchemy engine
+# if DATABASE_URL.startswith("sqlite"):
+#     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# else:
+#     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+if not DATABASE_URL:
+    # 先不要默默 fallback，直接讓它爆錯，才不會用到 SQLite 又不知道
+    raise RuntimeError("DATABASE_URL is not set. Please configure it on Render!")
+
+print(f"[DB] Using DATABASE_URL = {DATABASE_URL}")  # ← 啟動時會印出來
+
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    # 如果你用的是 Postgres，不要放 sqlite 的 connect_args
+)
+
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
