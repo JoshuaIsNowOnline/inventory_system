@@ -1,7 +1,14 @@
 [build]
   # Netlify 構建設定
   base = "frontend/inventory_app"
-  command = "flutter build web --release"
+  command = """
+  curl -s https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.4-stable.tar.xz -o flutter.tar.xz &&
+  tar xf flutter.tar.xz &&
+  export PATH="$PATH:`pwd`/flutter/bin" &&
+  flutter doctor &&
+  flutter pub get &&
+  flutter build web --release
+  """
   publish = "build/web"
 
 [build.environment]
