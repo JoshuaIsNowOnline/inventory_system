@@ -18,12 +18,27 @@ class _DeliveryPageState extends State<DeliveryPage> {
   Timer? _timer; // ✅ 宣告 Timer 變數
   String currentTime = '';
   bool confirmed = false;
+  Map<String, dynamic>? inventory; // 庫存資料
 
   @override
   void initState() {
     super.initState();
     _startClock(); // ✅ 啟動時鐘
+    _loadInventory();
     _loadDelivery();
+  }
+
+  Future<void> _loadInventory() async {
+    try {
+      final data = await api.fetchInventory();
+      if (mounted) {
+        setState(() {
+          inventory = data; // {魚肚: {qty:8, danger_level:5}, ...}
+        });
+      }
+    } catch (e) {
+      debugPrint('load inventory error: $e');
+    }
   }
 
   @override
@@ -217,12 +232,32 @@ class _DeliveryPageState extends State<DeliveryPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         ),
                         onPressed: () async {
+                          // 檢查庫存限制
+                          double maxQty = double.infinity;
+                          if (inventory != null && inventory![name] != null) {
+                            final currentStock = (inventory![name]['qty'] as num).toDouble();
+                            maxQty = currentStock;
+                          }
+                          
                           final edited = await showQtyEditor(
                             context,
                             '$name 提貨量',
                             qty,
+                            maxValue: maxQty,
                           );
                           if (edited != null) {
+                            // 再次檢查是否超過庫存
+                            if (inventory != null && inventory![name] != null) {
+                              final currentStock = (inventory![name]['qty'] as num).toDouble();
+                              if (edited > currentStock) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('提貨數量不能超過庫存 (${currentStock.toStringAsFixed(1)})')),
+                                  );
+                                }
+                                return;
+                              }
+                            }
                             setState(() => _plan[name] = edited);
                           }
                         },

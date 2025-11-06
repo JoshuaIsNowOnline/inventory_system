@@ -51,8 +51,13 @@ class _LeftoverPageState extends State<LeftoverPage> {
     // 2) 取得今天已存的剩料
     final left = await api.getLeftovers(todayISO); // {item: qty, ...}
 
+    // 過濾不需要計入剩料的品項
+    final excludedItems = ['腸子', '蝦肉丸', '脆丸', '骨頭'];
+    
     // 建立 controller，預設值為 left 中的數字或 0
     for (var name in inv.keys) {
+      if (excludedItems.contains(name)) continue; // 跳過不需要的品項
+      
       final v = (left[name] is num)
           ? (left[name] as num).toDouble()
           : double.tryParse('${left[name]}') ?? 0.0;

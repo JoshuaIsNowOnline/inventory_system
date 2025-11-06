@@ -296,6 +296,8 @@ class _SchedulePageState extends State<SchedulePage> {
                                                 children: [
                                                   Text(title.isNotEmpty ? title : item, 
                                                       style: const TextStyle(fontWeight: FontWeight.w600)),
+                                                  Text('品項：$item', 
+                                                      style: const TextStyle(fontSize: 12)),
                                                   Text('數量：${qty.toStringAsFixed(1)}', 
                                                       style: const TextStyle(fontSize: 12)),
                                                 ],
@@ -338,6 +340,8 @@ class _SchedulePageState extends State<SchedulePage> {
                                                         ),
                                                       ),
                                                       const SizedBox(height: 6),
+                                                      Text('品項：$item',
+                                                          style: const TextStyle(fontSize: 16, color: Colors.black87)),
                                                       Text('數量：${qty.toStringAsFixed(1)}',
                                                           style: const TextStyle(fontSize: 16, color: Colors.black87)),
                                                     ],

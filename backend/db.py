@@ -69,6 +69,14 @@ def init_db(products):
     Base.metadata.create_all(bind=engine)
     # seed inventory rows
     with SessionLocal() as s:
+        # 清理不再需要的舊品項
+        obsolete_items = ["腸子", "蝦肉丸", "脆丸"]
+        for item in obsolete_items:
+            old_item = s.query(Inventory).filter_by(item=item).first()
+            if old_item:
+                s.delete(old_item)
+        
+        # 新增正確的品項
         for p in products:
             if not s.query(Inventory).filter_by(item=p).first():
                 s.add(Inventory(item=p, qty=0))
