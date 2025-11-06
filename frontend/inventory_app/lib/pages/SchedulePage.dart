@@ -150,7 +150,7 @@ class _SchedulePageState extends State<SchedulePage> {
               children: [
                 Text(currentTime, style: const TextStyle(fontSize: 14, color: Colors.white70)),
                 Text(
-                  showDangerSettings ? '危險量設定' : '工作排程', 
+                  showDangerSettings ? '安全量設定' : '工作排程', 
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ],
@@ -171,7 +171,7 @@ class _SchedulePageState extends State<SchedulePage> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    showDangerSettings ? 'DANGER' : 'SCHEDULE', 
+                    showDangerSettings ? 'SAFETY' : 'SCHEDULE', 
                     style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -193,7 +193,7 @@ class _SchedulePageState extends State<SchedulePage> {
                 showDangerSettings = !showDangerSettings;
               });
             },
-            tooltip: showDangerSettings ? '返回排程' : '危險量設定',
+            tooltip: showDangerSettings ? '返回排程' : '安全量設定',
           ),
           IconButton(
             icon: const Icon(Icons.refresh, size: 28),
@@ -263,10 +263,19 @@ class _SchedulePageState extends State<SchedulePage> {
                                       itemBuilder: (ctx, j) {
                                         final t = tasks[j];
                                         final id = (t['id'] as num).toInt();
-                                        final title = t['task']?.toString() ?? '';
+                                        final rawTitle = t['task']?.toString() ?? '';
                                         final item = t['item']?.toString() ?? '';
                                         final qty = (t['qty'] is num) ? (t['qty'] as num).toDouble() : double.tryParse('${t['qty']}') ?? 0.0;
                                         final done = t['done'] == true;
+                                        
+                                        // 移除 "製作" 並簡化顯示
+                                        String title = rawTitle.replaceAll('製作 ', '');
+                                        // 如果 title 包含品項名稱，移除重複的品項資訊
+                                        if (title.contains(item) && item.isNotEmpty) {
+                                          title = title.replaceAll(item, '').trim();
+                                          // 移除多餘的空格和標點
+                                          title = title.replaceAll(RegExp(r'\s+'), ' ').trim();
+                                        }
                                         
                                         return LongPressDraggable<Map<String, dynamic>>(
                                           data: t,
@@ -285,8 +294,9 @@ class _SchedulePageState extends State<SchedulePage> {
                                                 mainAxisSize: MainAxisSize.min,
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-                                                  Text('$item (${qty.toStringAsFixed(1)})', 
+                                                  Text(title.isNotEmpty ? title : item, 
+                                                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                                                  Text('數量：${qty.toStringAsFixed(1)}', 
                                                       style: const TextStyle(fontSize: 12)),
                                                 ],
                                               ),
@@ -320,7 +330,7 @@ class _SchedulePageState extends State<SchedulePage> {
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
                                                       Text(
-                                                        title,
+                                                        title.isNotEmpty ? title : item,
                                                         style: TextStyle(
                                                           fontSize: 18,
                                                           fontWeight: FontWeight.w600,
@@ -328,7 +338,7 @@ class _SchedulePageState extends State<SchedulePage> {
                                                         ),
                                                       ),
                                                       const SizedBox(height: 6),
-                                                      Text('品項：$item\n數量：${qty.toStringAsFixed(1)}',
+                                                      Text('數量：${qty.toStringAsFixed(1)}',
                                                           style: const TextStyle(fontSize: 16, color: Colors.black87)),
                                                     ],
                                                   ),
@@ -404,14 +414,14 @@ class _SchedulePageState extends State<SchedulePage> {
                     Icon(Icons.warning, color: Colors.orange),
                     const SizedBox(width: 8),
                     const Text(
-                      '危險庫存量設定',
+                      '安全庫存量設定',
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '當庫存低於設定值時，會在庫存頁面以紅色標示警告',
+                  '當庫存低於安全量時，會在庫存頁面以紅色標示警告',
                   style: TextStyle(color: Colors.grey[600], fontSize: 16),
                 ),
               ],
@@ -460,7 +470,7 @@ class _SchedulePageState extends State<SchedulePage> {
                     style: const TextStyle(fontSize: 18),
                   ),
                   Text(
-                    '危險警戒值：${danger.toStringAsFixed(1)}',
+                    '安全量：${danger.toStringAsFixed(1)}',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.orange.shade700,
@@ -481,7 +491,7 @@ class _SchedulePageState extends State<SchedulePage> {
                 onPressed: () async {
                   final newDanger = await showDangerEditor(
                     context, 
-                    '$name 危險警戒值', 
+                    '$name 安全量', 
                     danger,
                   );
                   if (newDanger != null) {

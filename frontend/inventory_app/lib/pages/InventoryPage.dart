@@ -69,6 +69,34 @@ class _InventoryPageState extends State<InventoryPage> {
     }
   }
 
+  // 按照固定順序排列庫存項目
+  List<MapEntry<String, dynamic>> _getSortedInventoryItems() {
+    if (inventory == null) return [];
+    
+    const sortOrder = [
+      "魚肚", "魚皮", "Q腸", "粉蒸", "燕餃", "豬腸", 
+      "肉燥", "魚肉", "蝦丸", "肉丸", "骨頭"
+    ];
+    
+    final entries = inventory!.entries.toList();
+    entries.sort((a, b) {
+      final indexA = sortOrder.indexOf(a.key);
+      final indexB = sortOrder.indexOf(b.key);
+      
+      // 如果兩者都在排序列表中，按順序排列
+      if (indexA != -1 && indexB != -1) {
+        return indexA.compareTo(indexB);
+      }
+      // 如果只有一個在排序列表中，該項目排在前面
+      if (indexA != -1) return -1;
+      if (indexB != -1) return 1;
+      // 兩者都不在排序列表中，按字母順序排列
+      return a.key.compareTo(b.key);
+    });
+    
+    return entries;
+  }
+
 
 
   @override
@@ -149,7 +177,8 @@ class _InventoryPageState extends State<InventoryPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...inventory!.entries.map((entry) {
+                    // 固定排列順序
+                    ..._getSortedInventoryItems().map((entry) {
                       final name = entry.key;
                       final data = entry.value;
                       final qty = (data['qty'] as num).toDouble();
@@ -195,7 +224,7 @@ class _InventoryPageState extends State<InventoryPage> {
                                 ),
                               ),
                               Text(
-                                '危險警戒值：${danger.toStringAsFixed(1)}',
+                                '安全量：${danger.toStringAsFixed(1)}',
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.orange.shade700,
