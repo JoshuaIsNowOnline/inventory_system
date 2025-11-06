@@ -207,13 +207,20 @@ class _SchedulePageState extends State<SchedulePage> {
           ? const Center(child: CircularProgressIndicator())
           : showDangerSettings
               ? _buildDangerSettingsView()
-              : GridView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: weekdaysEn.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 8, childAspectRatio: 1.15,
-              ),
-              itemBuilder: (ctx, i) {
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    // 手機版 (寬度小於600px) 使用單欄布局
+                    final isMobile = constraints.maxWidth < 600;
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: weekdaysEn.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isMobile ? 1 : 2, 
+                        crossAxisSpacing: 8, 
+                        mainAxisSpacing: 8, 
+                        childAspectRatio: isMobile ? 2.5 : 1.15,  // 手機版用更寬的比例
+                      ),
+                      itemBuilder: (ctx, i) {
                 final wdEn = weekdaysEn[i];
                 final tasks = grouped[wdEn]!;
                 return DragTarget<Map<String, dynamic>>(
@@ -261,8 +268,9 @@ class _SchedulePageState extends State<SchedulePage> {
                                         final qty = (t['qty'] is num) ? (t['qty'] as num).toDouble() : double.tryParse('${t['qty']}') ?? 0.0;
                                         final done = t['done'] == true;
                                         
-                                        return Draggable<Map<String, dynamic>>(
+                                        return LongPressDraggable<Map<String, dynamic>>(
                                           data: t,
+                                          delay: const Duration(milliseconds: 500), // 防止意外拖拽
                                           feedback: Material(
                                             elevation: 8,
                                             borderRadius: BorderRadius.circular(8),
@@ -362,7 +370,9 @@ class _SchedulePageState extends State<SchedulePage> {
                   },
                 );
               },
-            ),
+                    );
+                  },
+                ),
     );
   }
 

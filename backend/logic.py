@@ -13,7 +13,7 @@ STORE_LAT, STORE_LON = 22.989382341539695, 120.20492352698653
 #提貨基準量
 AVERAGE_DELIVERY = {
     "魚肚": 3.0, "魚皮": 2.0, "魚肉": 3.0, "粉蒸": 2.0, "Q腸": 1.0,
-    "豬腸": 1.0, "脆丸": 0.8, "蝦丸": 1.0, "肉丸": 0.5, "肉燥": 0.5
+    "豬腸": 1.0, "燕餃": 1.0, "蝦丸": 1.0, "肉丸": 0.5, "肉燥": 0.5, "骨頭": 1.0
 }
 
 DATE_WEIGHT = {
@@ -166,8 +166,7 @@ def calculate_qty_plan(item: str, intensity: float) -> Tuple[str, float]:
         else:
             return ("魚肚", 3.0)
 
-    if item == "魚皮":
-        return ("魚皮", 4.0)
+    # 魚皮不再獨立排程，當魚皮不夠時排剝魚肉工作
 
     if item == "魚肉":
         return ("剝魚肉", 1.0)  # 剝一次產出 3包魚肉 + 4包魚皮
@@ -271,7 +270,11 @@ def generate_schedule(session):
         # 7-2) 用 intensity 決定離散數量 & 顯示名稱
         task_name, qty = calculate_qty_plan(item, intensity)
 
-        # 7-3) 幫它找一個合適天（避假日/休息日、同日>1件）
+        # 7-3) 幫它找一個合適天（避假日/休息日、避免同日多個非繁重工作）
+        # 定義非繁重工作：魚肚、魚肉 (剝魚肉)
+        light_tasks = ["魚肚", "魚肉"]
+        is_light_task = item in light_tasks
+        
         for i in range(1, 8):
             d = today + timedelta(days=i)
             day_dt = weekday_to_datetype(d.date())
@@ -279,9 +282,17 @@ def generate_schedule(session):
                 continue
 
             wd = WEEKDAYS_EN[d.weekday()]
-            existed_same_day = session.query(ScheduleTask).filter_by(weekday=wd, done=False).first()
-            if existed_same_day:
+            existed_tasks = session.query(ScheduleTask).filter_by(weekday=wd, done=False).all()
+            
+            # 如果是非繁重工作，檢查該天是否已有任何工作
+            if is_light_task and existed_tasks:
                 continue
+                
+            # 如果是繁重工作，檢查該天是否已有其他繁重工作
+            if not is_light_task:
+                existing_heavy_tasks = [t for t in existed_tasks if t.item not in light_tasks]
+                if existing_heavy_tasks:
+                    continue
 
             session.add(ScheduleTask(
                 weekday=wd,
